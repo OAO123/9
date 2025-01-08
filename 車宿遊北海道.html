@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>車宿遊北海道</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #e0f7fa, #f1f8e9);
+            color: #333;
+            overflow-x: hidden; 
+        }
+        header {
+            background-color: #01B468;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .dropdown {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 101;
+        }
+        .dropbtn {
+            background-color: #3498DB;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .dropbtn:hover {
+            background-color: #2980B9;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 5px;
+        }
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            border-radius: 5px;
+        }
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+        .show {
+            display: block;
+        }
+        .map-container {
+            margin-top: 120px;
+            position: relative;
+            text-align: center;
+        }
+        .map-container img {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .map-marker {
+            position: absolute;
+            background-color: #f44336;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .map-marker:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            background-color: #ff5722;
+        }
+        .container {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .slider {
+            position: relative;
+            max-width: 800px;
+            margin: auto;
+        }
+        .slider img {
+            width: 100%;
+            display: none;
+            border-radius: 10px;
+        }
+        .slider img.active {
+            display: block;
+        }
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .arrow.left {
+            left: 10px;
+        }
+        .arrow.right {
+            right: 10px;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            margin-top: 20px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .comment-section {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center;
+        }
+        .comment-section form {
+            width: 80%;
+            max-width: 600px;
+        }
+        .comment-section form textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .comment-section form button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            width: 100%; 
+        }
+        .comment-section form button:hover {
+            background-color: #388E3C;
+        }
+        .comments {
+            margin-top: 20px;
+            width: 80%;
+            max-width: 600px;
+        }
+        .comments .comment {
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 20px;
+            }
+            .map-container img {
+                max-width: 100%;
+            }
+            .container {
+                width: 95%;
+            }
+            .dropdown {
+                left: 5px;
+                top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>2024車宿遊北海道</h1>
+</header>
+
+<div class="dropdown">
+    <button onclick="toggleDropdown()" class="dropbtn">選擇地點</button>
+    <div id="myDropdown" class="dropdown-content">
+        <a href="#" onclick="showLocation('sapporo')">札幌</a>
+        <a href="#" onclick="showLocation('hakodate')">函館</a>
+        <a href="#" onclick="showLocation('toyalake')">洞爺湖</a>
+        <a href="#" onclick="showLocation('chitose')">千歲</a>
+        <a href="#" onclick="showLocation('asahikawa')">旭川</a>
+        <a href="#" onclick="showLocation('furano')">富良野</a>
+        <a href="#" onclick="showLocation('biei')">美瑛</a>
+    </div>
+</div>
+
+<div id="map" class="map-container">
+    <img src="hokkaido_map.jpg" alt="北海道地圖">
+    <div class="map-marker" style="top: 50%; left: 40%;" onclick="showLocation('sapporo')">札幌</div>
+    <div class="map-marker" style="top: 73%; left: 37%;" onclick="showLocation('hakodate')">函館</div>
+    <div class="map-marker" style="top: 60%; left: 36%;" onclick="showLocation('toyalake')">洞爺湖</div>
+    <div class="map-marker" style="top: 57%; left: 43%;" onclick="showLocation('chitose')">千歲</div>
+    <div class="map-marker" style="top: 38%; left: 48%;" onclick="showLocation('asahikawa')">旭川</div>
+    <div class="map-marker" style="top: 48%; left: 49%;" onclick="showLocation('furano')">富良野</div>
+    <div class="map-marker" style="top: 42%; left: 51%;" onclick="showLocation('biei')">美瑛</div>
+</div>
+
+<!-- Locations Containers -->
+<!-- Example of a location container (sapporo) -->
+<div id="sapporo" class="container location">
+    <h2>札幌</h2>
+    <div class="slider">
+        <img src="sapporo1.jpg" class="active" alt="札幌1">
+        <img src="sapporo2.jpg" alt="札幌2">
+        <img src="sapporo3.jpg" alt="札幌3">
+        <span class="arrow left" onclick="prevSlide('sapporo')">&#10094;</span>
+        <span class="arrow right" onclick="nextSlide('sapporo')">&#10095;</span>
+    </div>
+    <p>札幌作為北海道的中心，擁有北海道別處無法比擬的繁華，也去到了傳說中的貍小路，體驗了札幌的夜生活。</p>
+</div>
+
+<div id="hakodate" class="container location">
+    <h2>函館</h2>
+    <div class="slider">
+        <img src="hakodate1.jpg" class="active" alt="函館1">
+        <img src="hakodate2.jpg" alt="函館2">
+        <img src="hakodate3.jpg" alt="函館3">
+        <img src="hakodate4.jpg" alt="函館4">
+        <img src="hakodate5.jpg" alt="函館5">
+        <span class="arrow left" onclick="prevSlide('hakodate')">&#10094;</span>
+        <span class="arrow right" onclick="nextSlide('hakodate')">&#10095;</span>
+    </div>
+    <p>函館的夜景因為起大霧沒看到真的很可惜聽說美不勝收，但是有去到五陵郭塔，伴隨著歷史的痕跡別有一番浪漫，小丑漢堡也是去到函館必試的美食。</p>
+</div>
+
+<div id="toyalake" class="container location">
+    <h2>洞爺湖</h2>
+    <div class="slider">
+        <img src="toyalake1.jpg" class="active" alt="洞爺湖1">
+        <img src="toyalake2.jpg" alt="洞爺湖2">
+        <img src="toyalake3.jpg" alt="洞爺湖3">
+        <span class="arrow left" onclick="prevSlide('toyalake')">&#10094;</span>
+        <span class="arrow right" onclick="nextSlide('toyalake')">&#10095;</span>
+    </div>
+    <p>洞爺湖的溫泉和寧靜的湖光山色，真的是一個療癒的地方，我們踩著天鵝船遊湖，深刻的感受到湖水的清澈。且在回程時一睹洞爺湖日落的景色，是我這次北海道行最為之驚豔的，此生沒看過如此漂亮的山水。</p>
+</div>
+
+<div id="chitose" class="container location">
+    <h2>千歲</h2>
+    <div class="slider">
+        <img src="chitose1.jpg" class="active" alt="千歲1">
+        <img src="chitose2.jpg" alt="千歲2">
+        <img src="chitose3.jpg" alt="千歲3">
+        <span class="arrow left" onclick="prevSlide('chitose')">&#10094;</span>
+        <span class="arrow right" onclick="nextSlide('chitose')">&#10095;</span>
+    </div>
+    <p>千歲為北海道重要的機場所在地，我們在那裡租借露營車，對我來說是環北海道旅程的起點也是終點。</p>
+    <p>在旅遊途中，道之驛對車友來說是最好的歇腳之地。</p>
+</div>
+
+<div id="asahikawa" class="container location">
+    <h2>旭川</h2>
+    <div class="slider">
+        <img src="asahikawa1.jpg" class="active" alt="旭川1">
+        <img src="asahikawa2.jpg" alt="旭川2">
+        <img src="asahikawa3.jpg" alt="旭川3">
+        <span class="arrow left" onclick="prevSlide('asahikawa')">&#10094;</span>
+        <span class="arrow right" onclick="nextSlide('asahikawa')">&#10095;</span>
+    </div>
+    <p>旭川的山裡有一處由國家經營的自然露營區，我們在那裡住了一夜，並體驗到原湯溫泉，當地為了保護生態此溫泉禁止使用任何沐浴用品。</p>
+</div>
+
+<div id="furano" class="container location">
+    <h2>富良野</h2>
+    <div class="slider">
+        <img src="furano1.jpg" class="active" alt="富良野1">
+        <img src="furano2.jpg" alt="富良野2">
+        <img src="furano3.jpg" alt="富良野3">
+        <span class="arrow left" onclick="prevSlide('furano')">&#10094;</span>
+        <span class="arrow right" onclick="nextSlide('furano')">&#10095;</span>
+    </div>
+    <p>富良野最有名的就是它的花海，在一片紫色的薰衣草海洋中，我品嘗著特別的薰衣草霜淇淋。</p>
+</div>
+
+<div id="biei" class="container location">
+    <h2>美瑛</h2>
+    <div class="slider">
+        <img src="biei1.jpg" class="active" alt="美瑛1">
+        <img src="biei2.jpg" alt="美瑛2">
+        <img src="biei3.jpg" alt="美瑛3">
+        <span class="arrow left"onclick="prevSlide('biei')">&#10094;</span>
+        <span class="arrow right" onclick="nextSlide('biei')">&#10095;</span>
+    </div>
+    <p>美瑛雖為一個小鎮，但卻透漏著濃重的異域風情，有名的青池也是必去的景點。</p>
+</div>
+
+<div class="comment-section">
+    <h3>留言區</h3>
+    <form onsubmit="addComment(event)">
+        <textarea id="commentText" placeholder="分享你的想法..."></textarea>
+        <button type="submit">發佈留言</button>
+    </form>
+    <div class="comments" id="commentList"></div>
+</div>
+
+<footer>
+    <p>© 2024日本北海道旅遊誌</p>
+</footer>
+
+<script>
+    function toggleDropdown() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+
+    function showLocation(location) {
+        // Hide all locations
+        let locations = document.querySelectorAll('.location');
+        locations.forEach(function(locationElement) {
+            locationElement.style.display = 'none';
+        });
+
+        // Show the selected location
+        let selectedLocation = document.getElementById(location);
+        if (selectedLocation) {
+            selectedLocation.style.display = 'block';
+        }
+    }
+
+    function nextSlide(location) {
+        let slides = document.querySelectorAll(`#${location} .slider img`);
+        let activeSlide = document.querySelector(`#${location} .slider img.active`);
+        let currentIndex = Array.from(slides).indexOf(activeSlide);
+        let nextIndex = (currentIndex + 1) % slides.length;
+        activeSlide.classList.remove('active');
+        slides[nextIndex].classList.add('active');
+    }
+
+    function prevSlide(location) {
+        let slides = document.querySelectorAll(`#${location} .slider img`);
+        let activeSlide = document.querySelector(`#${location} .slider img.active`);
+        let currentIndex = Array.from(slides).indexOf(activeSlide);
+        let prevIndex = (currentIndex - 1 + slides.length) % slides.length;
+        activeSlide.classList.remove('active');
+        slides[prevIndex].classList.add('active');
+    }
+
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropbtn')) {
+            let dropdowns = document.querySelectorAll('.dropdown-content');
+            dropdowns.forEach(function(dropdown) {
+                dropdown.classList.remove('show');
+            });
+        }
+    }
+    function addComment(event) {
+    event.preventDefault(); 
+
+    let commentText = document.getElementById("commentText").value; 
+    if (commentText.trim() === "") {
+        alert("請輸入留言內容！");
+        return; 
+    }
+
+    let commentElement = document.createElement("div");
+    commentElement.classList.add("comment");
+
+    commentElement.innerHTML = `<p>${commentText}</p>`;
+
+    let commentList = document.getElementById("commentList");
+    commentList.appendChild(commentElement);
+
+    document.getElementById("commentText").value = "";
+}
+
+    document.addEventListener("DOMContentLoaded", () => showLocation('sapporo'));
+</script>
+
+</body>
+</html>
